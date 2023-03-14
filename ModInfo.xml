@@ -1,0 +1,32 @@
+<Mod ID="SwordQi">
+  <Compatible>1.11b</Compatible>
+  <Button Standard="F2" ID="sharkjn">
+    <Name>
+      <EN>Skill release</EN>
+      <ZH>技能释放</ZH>
+    </Name>
+    <Description>
+      <EN>You can release skills when you are full of anger</EN>
+      <ZH>怒气满后可以释放技能</ZH>
+    </Description>
+  </Button>
+  <Button Standard="F2" ID="menu">
+    <Name>
+      <EN>menu</EN>
+      <ZH>Mod界面</ZH>
+    </Name>
+    <Description>
+      <EN></EN>
+      <ZH></ZH>
+    </Description>
+  </Button>
+  <Name>
+    <EN>Sword Qi</EN>
+    <ZH>剑气</ZH>
+  </Name>
+  <Description>
+    <EN>Use the samurai sword to trigger sword qi</EN>
+    <ZH>使用武士刀触发剑气</ZH>
+  </Description>
+  <Version>1.2.3.6</Version>
+</Mod>
