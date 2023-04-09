@@ -171,9 +171,11 @@
 <Compile Include="Network\SqCommandReader.cs"  />
 <Compile Include="Network\SqNetworkManager.cs"  />
 <Compile Include="Network\SqChatBoxMod.cs"  />
+<Compile Include="ResInspection.cs"  />
 <Compile Include="SharkCsm.cs"  />
 <Compile Include="SharkDes.cs"  />
 <Compile Include="SwordQi.cs"  />
+<Compile Include="ZipHelper.cs"  />
 
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

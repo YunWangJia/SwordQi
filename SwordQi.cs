@@ -10,7 +10,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using ModAPI;
 using UnityEngine.SceneManagement;
-using System.Reflection;
+
 
 namespace SwordQi
 {
@@ -30,65 +30,49 @@ namespace SwordQi
         public static GameObject jqi_4;
 
         protected GUIStyle labelStyle;
-        private Texture2D HPBG;
+        public Texture2D HPBG;
 
         private bool ShouldEquipLeftHandAfter;
         private bool ShouldEquipRightHandAfter;
         private bool visible;
         public bool jqiBool = true;
-        //public bool timeJudge = true;
-        //public bool Butt = true;
+        public bool ClashMods = false;
 
-        //public bool sharkbool = false;
+        public static bool Loaded = false;
 
         public static int sharkEnergy;
         public static int qics;
-
-        //public static string pztag;
-        //public static string pzname;
         public string Open = "已开启";
-
         public float Keytime = 0f;
 
+
+        //==========================================测试变量
+        //public bool timeJudge = true;
+        //public bool Butt = true;
+        //public bool sharkbool = false;
+
+        public static string pztag = "";
+        //public static string pzname;
+        
+        public static string LoadText = "";
+        public static int LoadValue;
+
+        
+
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!,不知道为什么在声明赋值new对象会导致游戏直接崩溃，请在方法内赋值或使用局部变量
+        //public ResInspection ResIn = new ResInspection();
 
 
         void Start()
         {
-            if(!Directory.Exists("Mods/SwordQi"))
+
+            if (ModAPI.Mods.LoadedMods.ContainsKey("Simple_Player_Markers"))//判断是否存在冲突Mod
             {
-                Directory.CreateDirectory("Mods/SwordQi");
+                ClashMods = true;
+                return;
             }
 
-            if (File.Exists("Mods/SwordQi/jqi.unity3d"))
-            {
-                //File.Delete("Mods/SwordQi");//删除老版本文件
-                try
-                {
-                    AssetBundle AB = AssetBundle.LoadFromFile("Mods/SwordQi/jqi.unity3d");
-                    var ab = AB.LoadAsset<GameObject>("zhongji");
-                    AB.Unload(false);//检查文件时，忘记卸载包了，进游戏加载被占用出错了，哈哈哈
-                    if (ab == null)
-                    {
-                        File.Delete("Mods/SwordQi/jqi.unity3d");
-                        CreateFile();
-                        AssetLoad();
-                    }
-                    else
-                    {
-                        AssetLoad();
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    ModAPI.Log.Write("Error:jqi.unity3d文件检查时出错" + "\n" + e.ToString());
-                }
-            }
-            else
-            {
-                CreateFile();
-                AssetLoad();
-            }
+            StartCoroutine(ResInspection.AssetCheck());
 
             if (!GameSetup.IsSinglePlayer)//不判断会导致进单人模式时游戏强退
             {
@@ -114,7 +98,7 @@ namespace SwordQi
 
             //    Instantiate(obj, new Vector3(437f, 51f, 1538f), new Quaternion(0f, 0f, 0f, 0f));//外部入口
             //    Instantiate(obj1, new Vector3(437f, 51f, 1538f), new Quaternion(0f, 0f, 0f, 0f));
-                
+
             //    AB.Unload(false);
 
             //}
@@ -124,9 +108,15 @@ namespace SwordQi
             //}
 
 
+
         }
         void Update()
         {
+            if (LocalPlayer.Stats == null || ClashMods)//游戏还没开始时,或存在冲突Mod时返回，不然Unity有报错，虽然不影响游戏.
+            {
+                return;
+            }
+
             if (ModAPI.Input.GetButtonDown("menu"))
             {
                 if (visible)
@@ -201,7 +191,7 @@ namespace SwordQi
             {
                 if (LocalPlayer.Stats.Stamina > 10f)//玩家耐力
                 {
-                    if (UnityEngine.Input.GetMouseButton(0) & jqiBool && LocalPlayer.Inventory.HasInSlot(Item.EquipmentSlot.RightHand, 180))
+                    if (UnityEngine.Input.GetMouseButton(0) & jqiBool && LocalPlayer.Inventory.HasInSlot(Item.EquipmentSlot.RightHand, 180))//判断玩家右手是否存在固定武器
                     {
                         Keytime += Time.deltaTime;
                     }
@@ -217,11 +207,11 @@ namespace SwordQi
             
 
 
-            if (ModAPI.Input.GetButtonDown("sharkjn") && sharkEnergy == 200)// 
+            if (ModAPI.Input.GetButtonDown("sharkjn") && sharkEnergy >= 100)// 
             {
                 SendSwordQi( 2,Camera.main.transform.position, Camera.main.transform.rotation);
                 Instantiate(shark, Camera.main.transform.position, Camera.main.transform.rotation);
-                sharkEnergy = 0;
+                sharkEnergy -= 100;
                 //Invoke("Shark", 10f);
             }
 
@@ -231,19 +221,25 @@ namespace SwordQi
 
         void OnGUI()
         {
+
+            ClashModsCheck();
+
             if (visible)
             {
                 if (this.labelStyle == null)
                 {
                     this.labelStyle = new GUIStyle(GUI.skin.label);
-                    this.labelStyle.fontSize = 48;
+                    this.labelStyle.fontSize = 24;
+                    this.labelStyle.alignment = TextAnchor.MiddleCenter;
                 }
                 int width = Screen.width / 2;//屏幕宽度
                 //int height = Screen.height;//屏幕高度
                 GUI.Label(new Rect(width - 200f, 30, 400f, 250f), "剑气传说", GUI.skin.window);//界面位置
 
-                //GUI.Label(new Rect(width - 155f, 100f, 100f, 30f), "碰撞检查：" + CheShi);
-                //GUI.Label(new Rect(width - 50f, 140, 100f, 30f), "怒气：" + sharkEnergy.ToString());
+                GUI.Label(new Rect(width - 155f, 100f, 100f, 30f), "能量：" + sharkEnergy.ToString());
+                GUI.Label(new Rect(width - 155f, 140, 200f, 30f), "测试：" + LoadText);
+                GUI.Label(new Rect(width - 155f, 180, 200f, 30f), "测试：" + pztag);
+                GUI.Label(new Rect(width - 155f, 220, 200f, 30f), "wepDam：" + LoadValue.ToString());
 
                 if (GUI.Button(new Rect(width - 50f, 60, 100f, 30f), Open))
                 {
@@ -263,42 +259,14 @@ namespace SwordQi
             }
             else
             {
-                if (SceneManager.GetActiveScene().name == "TitleScene" || sharkEnergy <= 0)//标题场景//如果没有能量则返回
+                
+                if (SceneManager.GetActiveScene().name == "TitleScene" || sharkEnergy <= 0)//标题场景/如果没有能量则返回
                 {
                     return;
                 }
 
-                //HPBG.SetPixel(10, 10, new Color(0f, 0.8f, 0f));
-                int width = Screen.width / 2;//屏幕宽度
-                //GUI.Box(new Rect(width - 100f,60,200,30), "");
-                sharkEnergy = Mathf.Clamp(sharkEnergy, 0, 200);//限制数值大小
-                if (sharkEnergy == 200)
-                {
-                    for (int x = 0; x < HPBG.width; x++)
-                    {
-                        for (int y = 0; y < HPBG.height; y++)
-                        {
-                            HPBG.SetPixel(x, y, new Color(1f, 0f, 0f));
-
-                        }
-                    }
-                    HPBG.Apply();
-                }
-                if(sharkEnergy < 200)
-                {
-                    for (int x = 0; x < HPBG.width; x++)
-                    {
-                        for (int y = 0; y < HPBG.height; y++)
-                        {
-                            HPBG.SetPixel(x, y, new Color(0f, 0.6f, 0f));
-
-                        }
-                    }
-                    HPBG.Apply();
-                }
-
-                GUI.DrawTexture(new Rect(width - 100f, 30, sharkEnergy, 15), HPBG);//能量条
-
+                EnergyBarUI(sharkEnergy);
+                //int width = Screen.width / 2;//屏幕宽度
                 //GUI.Label(new Rect(width - 100f, 60, 200, 30),"Name:" + pzname);
                 //GUI.Label(new Rect(width - 100f, 90, 200, 30),"Tag:" + pztag);
 
@@ -306,13 +274,19 @@ namespace SwordQi
 
             }
 
+            
+
+
 
             
 
 
         }
 
-
+        /// <summary>
+        /// 延迟判定
+        /// </summary>
+        /// <param name="time"></param>
         public void DelayJudgment(float time)
         {
             if(time == 0f)
@@ -342,64 +316,140 @@ namespace SwordQi
                 Keytime = 0f;
                 SendSwordQi(3, Camera.main.transform.position, Camera.main.transform.rotation);
                 SyncJianQiBash(Camera.main.transform.position, Camera.main.transform.rotation);
-                Invoke("BashTime", 1.8f);//重击的回刀时间经用重击
+                Invoke("BashTime", 1.8f);//重击的挥刀时间间隔限制
             }
         }
 
-        public void CreateFile()
-        {
-            Assembly assembly = Assembly.GetExecutingAssembly();
-            Stream stream = assembly.GetManifestResourceStream("SwordQi.jqi.unity3d");
-            var fs = new FileStream("Mods/SwordQi/jqi.unity3d", FileMode.Create, FileAccess.ReadWrite);
+        
 
-            stream.Position = 0;
-            byte[] bytes = new byte[stream.Length];
-            using (MemoryStream ms = new MemoryStream())
+        /// <summary>
+        /// Mod冲突检查
+        /// </summary>
+        public void ClashModsCheck()
+        {
+            if (LocalPlayer.Stats != null)//玩家数据不为空说明玩家开始游戏
             {
-                int read;
-                while ((read = stream.Read(bytes, 0, bytes.Length)) > 0)
+                if (ClashMods)
                 {
-                    ms.Write(bytes, 0, read);
+                    if (LocalPlayer.FpCharacter != null)//说明玩家已加载
+                    {
+                        LocalPlayer.FpCharacter.LockView(true);//锁定视图
+                        LocalPlayer.FpCharacter.MovementLocked = true;//锁定角色移动
+                    }
+                    if (this.labelStyle == null)
+                    {
+                        this.labelStyle = new GUIStyle(GUI.skin.label);
+                        this.labelStyle.fontSize = 24;
+                        this.labelStyle.alignment = TextAnchor.MiddleCenter;
+                    }
+                    int width = Screen.width / 2;//屏幕宽度
+                    int height = Screen.height;//屏幕高度
+
+                    GUI.Label(new Rect(0, 0, Screen.width, height), "Mod存在冲突", GUI.skin.window);
+
+                    GUI.Label(new Rect(0, -150f, Screen.width, 600f), "剑气Mod(SwordQi)与Simple Player Markers冲突！\n\n<color=red>剑气Mod无法正常运行！</color>\n\n请请取消启用<color=green>Simple Player Markers</color>并重启游戏！", labelStyle);
+                    if (GUI.Button(new Rect(width - 50f, (height / 2) + 100, 100f, 40f), "返回主菜单"))
+                    {
+                        SceneManager.LoadScene("TitleScene");
+                    }
                 }
-                bytes = ms.ToArray();
             }
-            fs.Write(bytes, 0, bytes.Length);
-            fs.Close();
+
+
+            if (ClashMods && SceneManager.GetActiveScene().name == "TitleScene")//主菜单界面提示
+            {
+
+
+                if (this.labelStyle == null)
+                {
+                    this.labelStyle = new GUIStyle(GUI.skin.label);
+                    this.labelStyle.fontSize = 24;
+                    this.labelStyle.alignment = TextAnchor.MiddleCenter;
+                }
+
+                int width = Screen.width;//屏幕宽度
+                //int height = Screen.height;//屏幕高度
+
+                GUI.Label(new Rect(0, -150f, width, 600f), "剑气Mod(SwordQi)与Simple Player Markers冲突！\n\n<color=red>剑气Mod无法正常运行！</color>\n\n请取消启用<color=green>Simple Player Markers</color>并重启游戏！", labelStyle);
+
+            }
         }
 
-        public void AssetLoad()
+        public void EnergyBarUI(int currentValue)
         {
-            try
+            //HPBG.SetPixel(10, 10, new Color(0f, 0.8f, 0f));
+            currentValue *= 2;//扩大2倍，这样的话传入值即可为0~100
+            int width = Screen.width / 2;//屏幕宽度
+                                         //GUI.Box(new Rect(width - 100f,60,200,30), "");
+            currentValue = Mathf.Clamp(currentValue, 0, 200);//限制数值大小
+            if (currentValue == 200)
             {
+                for (int x = 0; x < HPBG.width; x++)
+                {
+                    for (int y = 0; y < HPBG.height; y++)
+                    {
+                        HPBG.SetPixel(x, y, new Color(1f, 0f, 0f));
 
-                AssetBundle AB = AssetBundle.LoadFromFile("Mods/SwordQi/jqi.unity3d");
-                jqi = AB.LoadAsset<GameObject>("jianqi");
-                jqi_4 = AB.LoadAsset<GameObject>("jianqibash");
-                jqibash = AB.LoadAsset<GameObject>("zhongji");
-                shark = AB.LoadAsset<GameObject>("sharkobj");
-
-
-                jqi.AddComponent<Des>();
-                jqi.transform.GetChild(0).gameObject.AddComponent<Csm>();
-
-                jqi_4.AddComponent<Des>();
-                jqi_4.transform.GetChild(0).gameObject.AddComponent<Csm>();
-                jqi_4.transform.GetChild(1).gameObject.AddComponent<Csm>();
-
-                jqibash.AddComponent<SharkDes>();
-                jqibash.transform.GetChild(0).gameObject.AddComponent<JqiBashCsm>();
-                
-
-                shark.AddComponent<SharkDes>();
-                shark.transform.GetChild(0).gameObject.AddComponent<SharkCsm>();
-                AB.Unload(false);
-
+                    }
+                }
+                HPBG.Apply();
             }
-            catch (Exception e)
+            if (currentValue < 200)
             {
-                ModAPI.Log.Write("Error:jqi.unity3d文件读取失败" + "\n" + e.ToString());
+                for (int x = 0; x < HPBG.width; x++)
+                {
+                    for (int y = 0; y < HPBG.height; y++)
+                    {
+                        HPBG.SetPixel(x, y, new Color(0f, 0.6f, 0f));
+
+                    }
+                }
+                HPBG.Apply();
             }
+
+            GUI.DrawTexture(new Rect(width - 100f, 30f, currentValue, 15f), HPBG);//能量条
+
+
         }
+
+        //public void LoadUI(int CurrentProgressBar, string text)
+        //{
+        //    //int width = Screen.width / 2;//屏幕宽度
+        //    SwordQi Sq = new SwordQi();
+        //    CurrentProgressBar *= 2;//扩大2倍，这样的话传入值即可为0~100
+        //    int height = Screen.height;
+
+        //    CurrentProgressBar = Mathf.Clamp(CurrentProgressBar, 0, 200);//限制数值大小
+        //    if (CurrentProgressBar == 200)
+        //    {
+        //        for (int x = 0; x < Sq.HPBG.width; x++)
+        //        {
+        //            for (int y = 0; y < Sq.HPBG.height; y++)
+        //            {
+        //                Sq.HPBG.SetPixel(x, y, new Color(0f, 0.7f, 0f));
+
+        //            }
+        //        }
+        //        Sq.HPBG.Apply();
+        //    }
+        //    if (CurrentProgressBar < 200)
+        //    {
+        //        for (int x = 0; x < Sq.HPBG.width; x++)
+        //        {
+        //            for (int y = 0; y < Sq.HPBG.height; y++)
+        //            {
+        //                Sq.HPBG.SetPixel(x, y, new Color(0f, 0f, 0.7f));
+
+        //            }
+        //        }
+        //        Sq.HPBG.Apply();
+        //    }
+
+        //    GUI.DrawTexture(new Rect(0, height - 15, CurrentProgressBar, 15), Sq.HPBG);//进度条
+        //    GUI.Label(new Rect(0, height - 30f, 200f, 20f), text);
+        //}
+
+
 
         public void BashTime()
         {
@@ -407,7 +457,7 @@ namespace SwordQi
         }
 
 
-        public void JianQi()
+        public void JianQi()//剑气，本地的
         {
             
             if(qics == 4)
@@ -500,6 +550,7 @@ namespace SwordQi
                 }
             }
         }
+
 
 
 
