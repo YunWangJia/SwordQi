@@ -20,6 +20,16 @@
       <ZH></ZH>
     </Description>
   </Button>
+  <Button Standard="F2" ID="SwordQiPack">
+    <Name>
+      <EN>SwordQiPack</EN>
+      <ZH>剑气背包</ZH>
+    </Name>
+    <Description>
+      <EN>Open the backpack interface of Sword Qi mod</EN>
+      <ZH>打开剑气mod的背包界面</ZH>
+    </Description>
+  </Button>
   <Name>
     <EN>Sword Qi</EN>
     <ZH>剑气</ZH>
@@ -28,5 +38,5 @@
     <EN>Use the samurai sword to trigger sword qi</EN>
     <ZH>使用武士刀触发剑气</ZH>
   </Description>
-  <Version>1.2.3.6</Version>
+  <Version>1.3.7.8</Version>
 </Mod>

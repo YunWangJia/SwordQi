@@ -17,33 +17,35 @@ namespace SwordQi
 
             if (other.gameObject.CompareTag("enemyRoot") || other.gameObject.CompareTag("Untagged") || other.gameObject.CompareTag("EndgameBoss"))
             {
-
+                
                 EnemyHealth EnHealth = other.GetComponentInChildren<EnemyHealth>();//不明白为什么用变量声明的方式才能访问到
+                
                 if (EnHealth)
                 {
-                    int dam = UnityEngine.Random.Range(20, 41);
-                    if ((EnHealth.Health -= dam) < 0)
-                    {
-                        EnHealth.Health = 0;
-                    }
-                    else
-                    {
-                        EnHealth.Health -= dam;
-                    }
+
+                    int dam = UnityEngine.Random.Range(10, 21);
+                    int damWeap = dam + SwordQi.Yuan_KatDamage;
+                    EnHealth.Hit(damWeap);
+                    
                 }
 
             }
             if (other.gameObject.CompareTag("enemyCollide"))//是否与敌人碰撞
             {
                 
-                SwordQi.sharkEnergy += 4;
-                other.gameObject.SendMessageUpwards("Burn", SendMessageOptions.DontRequireReceiver);
+                SwordQi.sharkEnergy += 2;
+                SwordQi.sharkEnergy = Mathf.Clamp(SwordQi.sharkEnergy, 0, 200);//限制数值大小
+                //other.gameObject.SendMessageUpwards("Burn", SendMessageOptions.DontRequireReceiver);
 
             }
 
             if (Des.jq_4)//第四道剑气才能砍树和燃烧敌人
             {
-                
+                if (other.gameObject.CompareTag("enemyCollide"))//是否与敌人碰撞
+                {
+                    other.gameObject.SendMessageUpwards("Burn", SendMessageOptions.DontRequireReceiver);
+
+                }
                 if (other.CompareTag("Tree"))
                 {
                     float num4 = Vector3.Distance(base.transform.position, other.transform.position);

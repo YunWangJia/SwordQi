@@ -15,17 +15,12 @@ namespace SwordQi
             {
 
                 EnemyHealth EnHealth = other.GetComponentInChildren<EnemyHealth>();//不明白为什么用变量声明的方式才能访问到
+                
                 if (EnHealth)
                 {
-                    int dam = UnityEngine.Random.Range(80, 101);//取值不包括最大值，如果想取到100，则加1
-                    if ((EnHealth.Health -= dam) < 0)
-                    {
-                        EnHealth.Health = 0;
-                    }
-                    else
-                    {
-                        EnHealth.Health -= dam;
-                    }
+                    int dam = UnityEngine.Random.Range(70, 91);//取值不包括最大值，如果想取到100，则加1
+                    int damWeap = dam + SwordQi.Yuan_KatDamage;
+                    EnHealth.Hit(damWeap);
                 }
 
             }
