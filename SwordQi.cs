@@ -11,6 +11,7 @@ using ModAPI;
 using UnityEngine.SceneManagement;
 using TheForest.Items.Inventory;
 using System.Collections;
+using TheForest.UI;
 
 namespace SwordQi
 {
@@ -22,14 +23,24 @@ namespace SwordQi
             new GameObject("SwordQi").AddComponent<SwordQi>();
         }
 
-        public static GameObject jqi;
-        public static GameObject jqibash;
-        public static GameObject shark;
-        public static GameObject jqi_4;
-        public static GameObject wuqi;
-        public static GameObject Menu;
-        public static GameObject yuan_KatanaHeld;
-        public static GameObject wq_LD;
+        public static SwordQi SwordQiWhole;//声明一个该类的静态变量，其他类就可以直接用这个变量访问到该类下的，公开方法和变量，而不需要把访问方法变为静态
+        public static Yuan_WeaponData ModWeapon;//不过记得要赋值，好像只有在Start()里初始化才有用
+        public static ResInspection Resload;
+
+        public GameObject jqi;
+        public GameObject jqibash;
+        public GameObject shark;
+        public GameObject jqi_4;
+        public GameObject wuqi;
+        public GameObject Menu;
+        public GameObject yuan_KatanaHeld;
+        public GameObject wq_LD;
+        public GameObject ka_bak;
+        public GameObject LD_bak;
+
+        public GameObject WeaponUI;
+        public GameObject Weapon_ui;
+        
 
         public GameObject menu_1;
         public GameObject wuqi_1;
@@ -37,7 +48,8 @@ namespace SwordQi
         public GameObject SwordQiPack;
         //public GameObject yuan_stickHeldUpgraded;
         public GameObject yuan_AxePlaneHeld;
-        public GameObject TitleScreenMenu;
+        //public GameObject TitleScreenMenu;
+        public GameObject hudGui;
 
         protected GUIStyle labelStyle;
         public Texture2D HPBG;
@@ -52,13 +64,16 @@ namespace SwordQi
         public bool NetworkBool;
         public bool GetOriginalDataBool;
         public bool MenuBool;
+        public bool ItemsBackpack;
+
+
         public bool PackBool;
 
-        public static bool Loaded;
+        public bool Loaded;
 
-        public static int sharkEnergy;
-        public static int qics;
-        public static int Yuan_KatDamage;
+        public int sharkEnergy;
+        public int qics;
+        public int Yuan_KatDamage;
 
         public string Open = "已开启";
         public float Keytime = 0f;
@@ -67,19 +82,23 @@ namespace SwordQi
         //==========================================测试的变量
         //public bool timeJudge = true;
         //public bool Butt = true;
-        //public bool sharkbool = false;
+        public bool jumpingAttack = false;
 
-        public static string pztag = "";
+        public string pztag = "";
         //public static string pzname;
         
-        public static string LoadText = "";
+        public string LoadText = "";
         //public static int LoadValue;
 
-        
+
 
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!,不知道为什么在声明赋值new对象会导致游戏直接崩溃，请在方法内赋值或使用局部变量
         //public ResInspection ResIn = new ResInspection();
 
+        void Awake()
+        {
+            
+        }
 
         void Start()
         {
@@ -88,11 +107,14 @@ namespace SwordQi
             ClashMods = false;
             MenuBoll = false;
             GetOriginalDataBool = false;
-
+            ItemsBackpack = false;
             Loaded = false;
 
             Yuan_KatDamage = 0;
 
+            SwordQiWhole = this;
+            Resload = new ResInspection();
+            ModWeapon = new Yuan_WeaponData();
 
             if (ModAPI.Mods.LoadedMods.ContainsKey("Simple_Player_Markers"))//判断是否存在冲突Mod
             {
@@ -102,9 +124,8 @@ namespace SwordQi
 
             
 
-            StartCoroutine(ResInspection.AssetCheck());
-            Yuan_WeaponData yw = new Yuan_WeaponData();
-            StartCoroutine(yw.YuanValueInit());
+            StartCoroutine(Resload.AssetCheck());
+            StartCoroutine(ModWeapon.YuanValueInit());
 
             if (!GameSetup.IsSinglePlayer)//不判断会导致进单人模式时游戏强退
             {
@@ -125,7 +146,7 @@ namespace SwordQi
                 return;
             }
 
-            if (GameSetup.IsSinglePlayer && NetworkBool)
+            if (GameSetup.IsSinglePlayer && NetworkBool)//检查网络模块是否应该启用
             {
                 GameObject.Find("SqNetworkManagerObj").SetActive(false);
                 NetworkBool = false;
@@ -141,8 +162,13 @@ namespace SwordQi
                 StartCoroutine(GetOriginalData());
                 GetOriginalDataBool = true;
             }
+            if(SwordQiPack && !ItemsBackpack)
+            {
+                AddItemsBackpack(SwordQiPack.transform);
+                ItemsBackpack = true;
+            }
 
-            if (ModAPI.Input.GetButtonDown("menu") && !PackBool)
+            if (ModAPI.Input.GetButtonDown("menu") && !PackBool && !TheForest.Utils.Input.GetState(TheForest.Utils.InputState.Book) && !TheForest.Utils.Input.GetState(TheForest.Utils.InputState.Menu)&& !TheForest.Utils.LocalPlayer.Stats.Dead)
             {
                 //if (visible)
                 //{
@@ -180,7 +206,27 @@ namespace SwordQi
                 //        LocalPlayer.Inventory.StashLeftHand();
                 //    }
                 //}
-                if (menu_1 == null)
+                visible = !visible;
+
+                //TheForest.Utils.LocalPlayer.FpCharacter.jumping//是否在跳跃状态
+                //TheForest.Utils.LocalPlayer.FpCharacter.drinking//是否在喝饮料/酒
+                //TheForest.Utils.LocalPlayer.AnimControl.endGameCutScene//结束游戏场景
+                //TheForest.Utils.LocalPlayer.FpCharacter.PushingSled//推雪橇
+                //TheForest.Utils.LocalPlayer.Animator.GetBool("drawBowBool")//拉弓Bool
+                //TheForest.Utils.LocalPlayer.AnimControl.slingShotAim//弹弓瞄准
+                //TheForest.Utils.LocalPlayer.Stats.Dead//是否为死亡状态
+                //TheForest.Utils.LocalPlayer.WaterViz.InWater//是否在水中
+                //TheForest.UI.VirtualCursor.Instance.SetCursorType(TheForest.UI.VirtualCursor.CursorTypes.Inventory);//设置光标为库存图标
+                //TheForest.UI.VirtualCursor.Instance.SetCursorType(TheForest.UI.VirtualCursor.CursorTypes.Hand);//设置光标为手，关闭库存后应用的
+                //TheForest.Utils.LocalPlayer.Inventory.CurrentView = PlayerInventory.PlayerViews.ClosingInventory;//关闭库存更改视图
+                //TheForest.Utils.LocalPlayer.Inventory.CurrentView = PlayerInventory.PlayerViews.Inventory;//打开库存更改视图
+                //TheForest.Utils.Input.GetButtonDown("Take")//拿，应该是E键
+                //TheForest.Utils.LocalPlayer.FpCharacter.jumpingAttack//跳跃攻击
+                //TheForest.Utils.Input.GetButton("Jump")//跳跃按键
+                //TheForest.Utils.LocalPlayer.Animator.GetBool("jumpBool");//为真时，跳跃可用，还在跳跃状态的时候应该为假
+                //PlayerInventory.HideAllEquiped();//隐藏所有装备
+
+                if (menu_1 == null)//Mod界面
                 {
                     LocalPlayer.FpCharacter.LockView(true);
                     TheForest.Utils.Input.SetState(TheForest.Utils.InputState.Inventory, true);
@@ -191,22 +237,9 @@ namespace SwordQi
                 }
                 else
                 {
-                    MenuBoll = !MenuBoll;
-                    if (MenuBoll)
-                    {
-                        LocalPlayer.FpCharacter.LockView(true);//锁定视角
-                        TheForest.Utils.Input.SetState(TheForest.Utils.InputState.Inventory, true);
-                        MenuBool = true;
-                    }
-                    else
-                    {
-                        LocalPlayer.FpCharacter.UnLockView();
-                        TheForest.Utils.Input.SetState(TheForest.Utils.InputState.Inventory, false);
-                        MenuBool = false;
-                    }
-                    menu_1.SetActive(MenuBoll);
+                    CloseMenu();
                 }
-                visible = !visible;
+                
 
             }
             if (ModAPI.Input.GetButtonDown("SwordQiPack") && !MenuBool)//mod背包
@@ -214,92 +247,52 @@ namespace SwordQi
                 
                 if(SwordQiPack)
                 {
-                    MenuBoll = !MenuBoll;
-                    if (MenuBoll)
+                    if(Weapon_ui == null)
                     {
-                        LocalPlayer.FpCharacter.LockView(true);//锁定视角
+                        Weapon_ui = Instantiate(WeaponUI, SwordQiPack.transform);
+                        Weapon_ui.transform.GetChild(0).gameObject.AddComponent<UIFollowMouse>();
+                        Weapon_ui.SetActive(false);
+                    }
+
+                    //MenuBoll = !MenuBoll;
+                    if (!TheForest.Utils.Input.GetState(TheForest.Utils.InputState.Inventory) && !TheForest.Utils.Input.GetState(TheForest.Utils.InputState.Menu) && !TheForest.Utils.Input.GetState(TheForest.Utils.InputState.Book) && !TheForest.Utils.LocalPlayer.FpCharacter.jumping && !TheForest.Utils.LocalPlayer.Stats.Dead)
+                    {
+                        if(hudGui == null)
+                        {
+                            hudGui = GameObject.Find("HudGui/HUD_Ngui/Camera_HUD");//隐藏房子等图标
+                            hudGui.SetActive(false);
+                        }
+                        else
+                        {
+                            hudGui.SetActive(false);
+                        }
+                        
                         Time.timeScale = 0;
-                        TheForest.Utils.Input.SetState(TheForest.Utils.InputState.Inventory, true);
+                        TheForest.Utils.Input.SetState(TheForest.Utils.InputState.Inventory, true);//设置视图为库存
+                        //TheForest.Utils.LocalPlayer.Inventory.CurrentView = PlayerInventory.PlayerViews.Inventory;//更改这个后，在背包界面才看不见房子之类的图标,后果：会造成鼠标被替换，导致用不了Unity的鼠标碰撞体检测，就无法实现装备的信息显示
+                        TheForest.UI.VirtualCursor.Instance.SetCursorType(TheForest.UI.VirtualCursor.CursorTypes.Inventory);
+                        LocalPlayer.FpCharacter.LockView(true);//锁定视角
+                        TheForest.Utils.LocalPlayer.Sfx.PlayOpenInventory();//有打开仓库的声音
+
+                        
                         PackBool = true;
+                        SwordQiPack.SetActive(true);
+                        
                     }
-                    else
+                    else if(PackBool)//不加PackBool，在原背包界面时会直接进入，导致更改了原游戏的视图值，从而引起背包重叠与混乱
                     {
-                        LocalPlayer.FpCharacter.UnLockView();
-                        Time.timeScale = 1;
-                        TheForest.Utils.Input.SetState(TheForest.Utils.InputState.Inventory, false);
-                        PackBool = false;
+                        CloseBack();
                     }
-                    SwordQiPack.SetActive(MenuBoll);
+                    
                 }
 
             }
-
-
-
-            //网络
-            if (SceneManager.GetActiveScene().name == "TitleScene")
+            if (TheForest.Utils.Input.GetButtonDown("Esc"))
             {
-                //try
-                //{
-                //    if (TitleScreenMenu == null)
-                //    {
-                //        TitleScreenMenu = GameObject.Find("AxePlaneHeld/TitleScreen/Menu");
-                //    }
-                //    if (SqNetworkManagerObj == null)
-                //    {
-                //        Instantiate(SqNetworkManagerObj);
-                //        SqNetworkManagerObj.name = "SqNetworkManagerObj";
-                //        SqNetworkManagerObj.AddComponent<Network.SqNetworkManager>();
-                //        Network.SqNetworkManager.instance.onGetMessage += Network.SqCommandReader.OnCommand;
-
-                //    }
-                //    if (TitleScreenMenu)
-                //    {
-                //        if (TitleScreenMenu.transform.GetChild(1).name == "Panel - SP NewGame/Continue")
-                //        {
-                //            SqNetworkManagerObj.SetActive(false);
-                //        }
-
-                //    }
-                //}
-                //catch (Exception e)
-                //{
-                //    ModAPI.Log.Write("Error:网络模块加载出错！" + "\n" + e.ToString());
-                //}
-                
-                
-
-            }
-            else
-            {
-                //try
-                //{
-                //    if (TitleScreenMenu == null)
-                //    {
-                //        TitleScreenMenu = GameObject.Find("AxePlaneHeld/TitleScreen/Menu");
-                //    }
-                //    if (TitleScreenMenu)
-                //    {
-                //        if (TitleScreenMenu.transform.GetChild(5).name == "Panel - MP Host/Join")
-                //        {
-                //            SqNetworkManagerObj.SetActive(true);
-                //        }
-
-                //    }
-                //}
-                //catch (Exception e)
-                //{
-                //    ModAPI.Log.Write("Error:网络模块加载出错！" + "\n" + e.ToString());
-                //}
-                
+                CloseBack();
             }
 
-
-
-
-
-
-            if (!UnityEngine.Input.GetMouseButton(1) && !MenuBoll)//如果处于架刀状态，或已打开菜单则退出
+            if (!UnityEngine.Input.GetMouseButton(1) && !MenuBoll && !PackBool)//如果处于架刀状态，或已打开菜单则退出
             {
                 if (LocalPlayer.Stats.Stamina > 10f)//玩家耐力
                 {
@@ -307,33 +300,37 @@ namespace SwordQi
                     {
                         Keytime += Time.deltaTime;
                     }
-                    else if (UnityEngine.Input.GetMouseButtonUp(0) && jqiBool && LocalPlayer.Inventory.HasInSlot(Item.EquipmentSlot.RightHand, 180))//长按判定，当松开鼠标时
+                    else if (UnityEngine.Input.GetMouseButtonUp(0) && jqiBool && LocalPlayer.Inventory.HasInSlot(Item.EquipmentSlot.RightHand, 180) && !TheForest.Utils.LocalPlayer.FpCharacter.jumpingAttack)//长按判定，当松开鼠标时
                     {
                         
                         DelayJudgment(Keytime);
                         Keytime = 0f;
 
                     }
+                    else
+                    {
+                        jumpingAttack = true;
+                    }
                 }
             }
             
-
-
-            if (ModAPI.Input.GetButtonDown("sharkjn") && sharkEnergy >= 100)// 
+            if (ModAPI.Input.GetButtonDown("sharkjn") && sharkEnergy >= 100)// 鲨鱼
             {
                 SendSwordQi( 2,Camera.main.transform.position, Camera.main.transform.rotation);
                 Instantiate(shark, Camera.main.transform.position, Camera.main.transform.rotation);
                 sharkEnergy -= 100;
                 //Invoke("Shark", 10f);
             }
+            
 
 
-            if (UnityEngine.Input.GetKeyDown(KeyCode.L))
-            {
-                
-                
-
-            }
+            //if (UnityEngine.Input.GetKeyDown(KeyCode.L))
+            //{
+            //    //LocalPlayer.FpCharacter.LockView(true);//锁定视角
+            //    //Cursor.lockState = CursorLockMode.None;
+            //    //LocalPlayer.Inventory.Equip(80, false);//飞机斧
+            //    LocalPlayer.Inventory.StashEquipedWeapon(false);
+            //}
             
 
         }
@@ -396,7 +393,7 @@ namespace SwordQi
             else
             {
                 
-                if (SceneManager.GetActiveScene().name == "TitleScene" || sharkEnergy <= 0 || TheForest.Utils.Input.States[TheForest.Utils.InputState.Inventory] || TheForest.Utils.Input.States[TheForest.Utils.InputState.Menu])//标题场景/没有能量/如果已打开库存/在暂停菜单界面，则返回
+                if (SceneManager.GetActiveScene().name == "TitleScene" || sharkEnergy <= 0 || TheForest.Utils.Input.GetState(TheForest.Utils.InputState.Inventory) || TheForest.Utils.Input.GetState(TheForest.Utils.InputState.Menu))//标题场景/没有能量/如果已打开库存/在暂停菜单界面，则返回
                 {
                     return;
                 }
@@ -405,10 +402,6 @@ namespace SwordQi
 
 
             }
-
-            
-
-
 
             
 
@@ -562,95 +555,28 @@ namespace SwordQi
                     btn1.transform.GetChild(0).GetComponent<Text>().text = "已关闭";
                 }
             });
-            var To = ui.transform.Find("BJ/ToggleTest").GetComponent<Toggle>();
-            To.onValueChanged.AddListener((value) =>//当侦听器有回传值的时候，方法需要有对应变量接收
+            var btnClose = ui.transform.Find("BJ/ButTestClose").GetComponent<Button>();
+            btnClose.onClick.AddListener(() =>
             {
-                GameObject ka = yuan_KatanaHeld;
-                
-                if(ka)
-                {
-                    if (value)
-                    {
-                        //ka.transform.GetChild(2).gameObject.SetActive(false);//原武士刀
-                        if (wuqi_1 == null)
-                        {
-                            //wqi_KatanaHeld = yuan_KatanaHeld;//用赋值相当于引用本体，如果对其进行更改，受影响的是原对象,可以用实例化解决
-                            ka.transform.GetChild(0).GetComponent<weaponInfo>().thisCollider = wuqi.GetComponent<BoxCollider>();
-                            wuqi_1 = Instantiate(wuqi, ka.transform);
-
-                        }
-
-                        ka.transform.GetChild(2).gameObject.SetActive(false);
-                        wuqi_1.gameObject.SetActive(value);//替换武士刀
-                    }
-                    else
-                    {
-                        
-                        ka.transform.GetChild(2).gameObject.SetActive(true);
-                        wuqi_1.gameObject.SetActive(value);//还原武士刀
-                    }
-                }
-                
+                CloseMenu();
             });
-            var ToLD = ui.transform.Find("BJ/ToggleTestLD").GetComponent<Toggle>();
-            ToLD.onValueChanged.AddListener((value) => 
-            {
-                
+            //var To = ui.transform.Find("BJ/ToggleTest").GetComponent<Toggle>();
+            //To.onValueChanged.AddListener((bool value) => //匿名方法
+            //{
+            //    WeaponAlter(yuan_KatanaHeld, "KatanaHeld", value);
+            //});
+            //var ToLD = ui.transform.Find("BJ/ToggleTestLD").GetComponent<Toggle>();
+            //ToLD.onValueChanged.AddListener((bool value) => //匿名方法
+            //{
 
+            //    WeaponAlter(yuan_AxePlaneHeld, "AxePlaneHeld", value);
 
-                if (yuan_AxePlaneHeld)
-                {
-                    GameObject sh = yuan_AxePlaneHeld;
-                    if (value)
-                    {
-                        
-                        if (wuqi_LD_1 == null)
-                        {
-                            //allowBodyCut:是否可切割尸体
-                            //spear，矛
-                            //rock，岩石
-                            //axe，斧头,木棍启用这个之后架刀就是单手，飞机斧取消启用这个，就可以保留劈砍且双手架刀
-                            //smallAxe，小斧
-                            //repairTool，维修工具
-                            //machete，大刀
-                            //chainSaw,电锯
-                            //blockDamagePercent，武器屏蔽，值为0~1，1为无，0为最高屏蔽
-                            //noTreeCut,为真的时候，砍树没有伤害
-
-                            //weaponDamage;    //武器伤害，武士刀：6
-                            //weaponSpeed;     //武器速度，武士刀：8.5
-                            //smashDamage;    //粉碎伤害，武士刀：10
-                            //tiredSpeed;    //疲惫的速度，武士刀：6.5
-                            //staminaDrain;  //耐力消耗，武士刀：7
-                            //soundDetectRange; //声音检测范围，武士刀：18
-                            //weaponRange;	//武器射程，武士刀：1.4
-
-                            sh.transform.GetChild(0).GetComponent<weaponInfo>().thisCollider = wq_LD.GetComponent<BoxCollider>();
-                            sh.transform.GetChild(0).GetComponent<weaponInfo>().axe = false;
-                            sh.transform.GetChild(0).GetComponent<weaponInfo>().noTreeCut = true;
-
-                            sh.transform.GetChild(0).GetComponent<weaponInfo>().blockDamagePercent = 0.5f;
-                            sh.transform.GetChild(0).GetComponent<weaponInfo>().weaponDamage = 15f;
-                            sh.transform.GetChild(0).GetComponent<weaponInfo>().smashDamage = 20f;
-                            sh.transform.GetChild(0).GetComponent<weaponInfo>().staminaDrain = 9f;
-
-                            wuqi_LD_1 = Instantiate(wq_LD, sh.transform);
-
-                        }
-
-                        sh.transform.GetChild(2).gameObject.SetActive(false);
-                        wuqi_LD_1.gameObject.SetActive(value);//
-                    }
-                    else
-                    {
-
-                        sh.transform.GetChild(2).gameObject.SetActive(true);
-                        wuqi_LD_1.gameObject.SetActive(value);//
-                    }
-                }
-            });
-
-
+            //});
+            //var tobk = ui.transform.Find("BJ/ToggleBack").GetComponent<Toggle>();
+            //tobk.onValueChanged.AddListener((bool value) =>
+            //{
+            //    LocalPlayer.FpCharacter.LockView(true);//锁定视角
+            //});
         }
 
         public IEnumerator GetOriginalData()
@@ -692,7 +618,9 @@ namespace SwordQi
                                 if (SwordQiPack.transform.GetChild(i).name == "BackPackVisuals")
                                 {
                                     SwordQiPack.transform.GetChild(i).transform.Find("Renderers/BackPack").gameObject.SetActive(false);
-
+                                    SwordQiPack.transform.GetChild(i).transform.Find("Camera").transform.localPosition = new Vector3( -0.1f, 0.5f, 0.4f);
+                                    SwordQiPack.transform.GetChild(i).transform.Find("Camera").transform.localEulerAngles = new Vector3(20f, 358.4f, 0f);
+                                    //目标：x = 20,y = 358.4,z = 0
                                 }
                                 else
                                 {
@@ -714,6 +642,7 @@ namespace SwordQi
             yield return null;
         }
 
+        
         public void GetYuan_KatDamage()
         {
             if (LocalPlayer.Inventory.HasInSlot(Item.EquipmentSlot.RightHand, 180))//如果已装备了武士刀，直接从固定路径获取，速度会快一点
@@ -734,12 +663,205 @@ namespace SwordQi
                 }
             }
         }
+        /// <summary>
+        /// 设置武器
+        /// </summary>
+        /// <param name="WeaponInfo"></param>
+        /// <param name="Toggle"></param>
+        public void WeaponAlter(GameObject WeaponObject,string WeapName, bool Toggle)
+        {
+            try
+            {
+                if (WeaponObject)
+                {
+                    switch (WeapName)
+                    {
+                        case "KatanaHeld":
+                            if (Toggle)
+                            {
+                                //ka.transform.GetChild(2).gameObject.SetActive(false);//原武士刀
+                                if (wuqi_1 == null)
+                                {
+                                    //wqi_KatanaHeld = yuan_KatanaHeld;//用赋值相当于引用本体，如果对其进行更改，受影响的是原对象,可以用实例化解决
+                                    wuqi_1 = Instantiate(wuqi, WeaponObject.transform);
+                                    wuqi_1.gameObject.SetActive(false);
+
+                                }
+                                if(wuqi_1.gameObject.activeSelf)
+                                {
+                                    return;
+                                }
+
+                                WeaponObject.transform.GetChild(2).gameObject.SetActive(false);
+                                wuqi_1.gameObject.SetActive(Toggle);//替换武士刀
+
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().thisCollider = wuqi.GetComponent<BoxCollider>();
+
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().weaponDamage = ModWeapon.Xing_KatanaHeld.weaponDamage;
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().weaponSpeed = ModWeapon.Xing_KatanaHeld.weaponSpeed;
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().smashDamage = ModWeapon.Xing_KatanaHeld.smashDamage;
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().tiredSpeed = ModWeapon.Xing_KatanaHeld.tiredSpeed;
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().weaponRange = ModWeapon.Xing_KatanaHeld.weaponRange;
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().staminaDrain = ModWeapon.Xing_KatanaHeld.staminaDrain;
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().blockDamagePercent = ModWeapon.Xing_KatanaHeld.blockDamagePercent;
+                            }
+                            else
+                            {
+
+                                WeaponObject.transform.GetChild(2).gameObject.SetActive(true);
+                                wuqi_1.gameObject.SetActive(Toggle);//还原武士刀
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().thisCollider = WeaponObject.GetComponent<BoxCollider>();
+
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().weaponDamage = ModWeapon.yuan_KatanaHeld.weaponDamage;
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().weaponSpeed = ModWeapon.yuan_KatanaHeld.weaponSpeed;
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().smashDamage = ModWeapon.yuan_KatanaHeld.smashDamage;
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().tiredSpeed = ModWeapon.yuan_KatanaHeld.tiredSpeed;
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().weaponRange = ModWeapon.yuan_KatanaHeld.weaponRange;
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().staminaDrain = ModWeapon.yuan_KatanaHeld.staminaDrain;
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().blockDamagePercent = ModWeapon.yuan_KatanaHeld.blockDamagePercent;
+                            }
+
+                            break;
+
+                        case "AxePlaneHeld":
+                            if (Toggle)
+                            {
+                                if (wuqi_LD_1 == null)
+                                {
+                                    wuqi_LD_1 = Instantiate(wq_LD, WeaponObject.transform);
+                                    wuqi_LD_1.gameObject.SetActive(false);
+                                }
+                                if(wuqi_LD_1.gameObject.activeSelf)
+                                {
+                                    return;
+                                }
+                                WeaponObject.transform.GetChild(2).gameObject.SetActive(false);
+                                wuqi_LD_1.gameObject.SetActive(Toggle);//
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().thisCollider = wq_LD.GetComponent<BoxCollider>();
+
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().axe = ModWeapon.DeathScythe.axe;
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().noTreeCut = ModWeapon.DeathScythe.noTreeCut;
+
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().weaponDamage = ModWeapon.DeathScythe.weaponDamage;
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().weaponSpeed = ModWeapon.DeathScythe.weaponSpeed;
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().smashDamage = ModWeapon.DeathScythe.smashDamage;
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().tiredSpeed = ModWeapon.DeathScythe.tiredSpeed;
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().weaponRange = ModWeapon.DeathScythe.weaponRange;
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().staminaDrain = ModWeapon.DeathScythe.staminaDrain;
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().blockDamagePercent = ModWeapon.DeathScythe.blockDamagePercent;
+                            }
+                            else
+                            {
+
+                                WeaponObject.transform.GetChild(2).gameObject.SetActive(true);
+                                wuqi_LD_1.gameObject.SetActive(Toggle);//
+                                                                       //还原飞机斧数据
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().thisCollider = WeaponObject.GetComponent<BoxCollider>();
+
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().axe = ModWeapon.yuan_AxePlaneHeld.axe;
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().noTreeCut = ModWeapon.yuan_AxePlaneHeld.noTreeCut;
+
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().weaponDamage = ModWeapon.yuan_AxePlaneHeld.weaponDamage;
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().weaponSpeed = ModWeapon.yuan_AxePlaneHeld.weaponSpeed;
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().smashDamage = ModWeapon.yuan_AxePlaneHeld.smashDamage;
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().tiredSpeed = ModWeapon.yuan_AxePlaneHeld.tiredSpeed;
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().weaponRange = ModWeapon.yuan_AxePlaneHeld.weaponRange;
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().staminaDrain = ModWeapon.yuan_AxePlaneHeld.staminaDrain;
+                                WeaponObject.transform.GetChild(0).GetComponent<weaponInfo>().blockDamagePercent = ModWeapon.yuan_AxePlaneHeld.blockDamagePercent;
+                            }
+                            break;
+
+                        default:
+
+                            break;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                ModAPI.Log.Write("Error:更改武武器据时出错" + "\n" + e.ToString());
+            }
+        }
+
+        public void AddItemsBackpack(Transform GameTran)
+        {
+            //inventoryItemSpreadTrigger//视图触发器，配合InventoryItemView一起使用
+            //inventoryItemSpreadSetup//模型上浮
+
+            //if(UnityEngine.Input.GetMouseButton(0))//鼠标点击模型触发XX事件，示例
+            //{
+            //    Ray ray = Camera.main.ScreenPointToRay(UnityEngine.Input.mousePosition);//在鼠标位置创建一个由相机发射向前的射线
+            //    RaycastHit hit;//接收器
+            //    if (Physics.Raycast(ray, out hit))//如果射线有命中物体
+            //    {
+            //        if (hit.collider.gameObject.name == "")
+            //        {
+
+            //        }
+            //    }
+            //}
+            
+
+            GameObject x_kat = Instantiate(ka_bak, GameTran);//新武士刀
+            x_kat.AddComponent<DisplayWeaponUI>();
+            //x_kat.layer = 23;
+            //x_kat.transform.GetChild(0).gameObject.layer = 23;
+            x_kat.transform.localPosition = new Vector3(-2.8f, 0.2f, 2f);
+            x_kat.transform.localEulerAngles = new Vector3(90f, 189f, 0f);//Rotation:用的是欧拉角
+
+            x_kat.transform.localScale = new Vector3(0.8f, 0.8f, 0.8f);
+
+            GameObject x_LD = Instantiate(LD_bak, GameTran);//死神镰刀
+            x_LD.AddComponent<DisplayWeaponUI>();
+            //x_LD.layer = 23;
+            //x_LD.transform.GetChild(0).gameObject.layer = 23;
+            x_LD.transform.localPosition = new Vector3(-2.5f, 0.2f, 1.8f);
+            x_LD.transform.localEulerAngles = new Vector3(90f, 10f, 0f);
+
+            x_LD.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
+        }
+
+        public void CloseBack()
+        {
+            if (SwordQiPack && PackBool)
+            {
+                DisplayWeaponUI.WeaponName = "";
+                Weapon_ui.SetActive(false);
+                hudGui.SetActive(true);
+                Time.timeScale = 1;
+                TheForest.Utils.Input.SetState(TheForest.Utils.InputState.Inventory, false);
+                //TheForest.Utils.LocalPlayer.Inventory.CurrentView = PlayerInventory.PlayerViews.ClosingInventory;
+                TheForest.UI.VirtualCursor.Instance.SetCursorType(TheForest.UI.VirtualCursor.CursorTypes.None);
+                LocalPlayer.FpCharacter.UnLockView();
+                TheForest.Utils.LocalPlayer.Sfx.PlayCloseInventory();
+                PackBool = false;
+                SwordQiPack.SetActive(false);
+            }
+        }
+
+        public void CloseMenu()
+        {
+            MenuBoll = !MenuBoll;
+            if (MenuBoll)
+            {
+                LocalPlayer.FpCharacter.LockView(true);//锁定视角
+                TheForest.Utils.Input.SetState(TheForest.Utils.InputState.Inventory, true);//设置视图为库存
+                MenuBool = true;
+            }
+            else
+            {
+                LocalPlayer.FpCharacter.UnLockView();
+                TheForest.Utils.Input.SetState(TheForest.Utils.InputState.Inventory, false);
+                MenuBool = false;
+            }
+            menu_1.SetActive(MenuBoll);
+        }
+
 
         public void BashTime()
         {
             jqiBool = true;
         }
-
 
         public void JianQi()//剑气，本地的
         {
@@ -755,7 +877,7 @@ namespace SwordQi
             
             jqiBool = true;
         }
-        public static void SyncJianQi(Vector3 SwordQiPosition, Quaternion SwordQiRotation,int fourth)//剑气,同步的
+        public void SyncJianQi(Vector3 SwordQiPosition, Quaternion SwordQiRotation,int fourth)//剑气,同步的
         {
             if (fourth == 4)
             {
@@ -766,11 +888,11 @@ namespace SwordQi
                 Instantiate(jqi, SwordQiPosition, SwordQiRotation);
             }
         }
-        public static void SyncJianQiBash(Vector3 SwordQiPosition, Quaternion SwordQiRotation)//重击
+        public void SyncJianQiBash(Vector3 SwordQiPosition, Quaternion SwordQiRotation)//重击
         {
             Instantiate(jqibash, SwordQiPosition, SwordQiRotation);
         }
-        public static void SyncShark(Vector3 SwordQiPosition, Quaternion SwordQiRotation)//鲨鱼技能
+        public void SyncShark(Vector3 SwordQiPosition, Quaternion SwordQiRotation)//鲨鱼技能
         {
             Instantiate(shark, SwordQiPosition, SwordQiRotation);
         }
@@ -782,7 +904,7 @@ namespace SwordQi
         /// <param name="pos"></param>
         /// <param name="quat"></param>
         /// <param name="fourth">第几道剑气</param>
-        private static void SendSwordQi(int features, Vector3 pos, Quaternion quat,int fourth = 0)
+        private void SendSwordQi(int features, Vector3 pos, Quaternion quat,int fourth = 0)
         {//发送同步
             if (GameSetup.IsSinglePlayer || GameSetup.IsMpServer)//是单人游戏/是联机房主
             {

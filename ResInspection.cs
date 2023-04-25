@@ -12,12 +12,12 @@ namespace SwordQi
     public class ResInspection
     {
 
-        public static string jqiPath = "Mods/SwordQi/jqi.unity3d";
-        public static string SwordQiContents = "Mods/SwordQi";
+        public string jqiPath = "Mods/SwordQi/jqi.unity3d";
+        public string SwordQiContents = "Mods/SwordQi";
 
         //private int LoadValue = 0;
         
-        public static IEnumerator AssetCheck()
+        public IEnumerator AssetCheck()
         {
             if (!Directory.Exists(SwordQiContents))
             {
@@ -30,7 +30,7 @@ namespace SwordQi
                 try
                 {
                     AssetBundle AB = AssetBundle.LoadFromFile(jqiPath);
-                    var ab = AB.LoadAsset<GameObject>("wqi");
+                    var ab = AB.LoadAsset<GameObject>("LD_bak");
                     AB.Unload(false);//检查文件时，忘记卸载包了，进游戏加载被占用出错了，哈哈哈
                     if (ab == null)
                     {
@@ -54,14 +54,14 @@ namespace SwordQi
                 CreateFile();
                 AssetLoad();
             }
-            SwordQi.Loaded = true;
+            SwordQi.SwordQiWhole.Loaded = true;
             yield return null;
         }
 
         /// <summary>
         /// 使用C#内嵌资源创建文件
         /// </summary>
-        public static void CreateFile()
+        public void CreateFile()
         {
             try 
             {
@@ -97,35 +97,38 @@ namespace SwordQi
         /// <summary>
         /// 固定目录加载文件
         /// </summary>
-        public static void AssetLoad()
+        public void AssetLoad()
         {
             try
             {
                 
 
                 AssetBundle AB = AssetBundle.LoadFromFile(jqiPath);
-                SwordQi.jqi = AB.LoadAsset<GameObject>("jianqi");
-                SwordQi.jqi_4 = AB.LoadAsset<GameObject>("jianqibash");//第4剑气
-                SwordQi.jqibash = AB.LoadAsset<GameObject>("zhongji");//重击
-                SwordQi.shark = AB.LoadAsset<GameObject>("sharkobj");//鲨鱼
-                SwordQi.wuqi = AB.LoadAsset<GameObject>("wqi");//新武士刀
-                SwordQi.Menu = AB.LoadAsset<GameObject>("SwordQiMenu");//菜单
-                SwordQi.wq_LD = AB.LoadAsset<GameObject>("wp_LD");//
+                SwordQi.SwordQiWhole.jqi = AB.LoadAsset<GameObject>("jianqi");
+                SwordQi.SwordQiWhole.jqi_4 = AB.LoadAsset<GameObject>("jianqibash");//第4剑气
+                SwordQi.SwordQiWhole.jqibash = AB.LoadAsset<GameObject>("zhongji");//重击
+                SwordQi.SwordQiWhole.shark = AB.LoadAsset<GameObject>("sharkobj");//鲨鱼
+                SwordQi.SwordQiWhole.wuqi = AB.LoadAsset<GameObject>("wqi");//新武士刀
+                SwordQi.SwordQiWhole.Menu = AB.LoadAsset<GameObject>("SwordQiMenu");//菜单
+                SwordQi.SwordQiWhole.wq_LD = AB.LoadAsset<GameObject>("wp_LD");//
+                SwordQi.SwordQiWhole.WeaponUI = AB.LoadAsset<GameObject>("wuqi_ui");//
+                SwordQi.SwordQiWhole.ka_bak = AB.LoadAsset<GameObject>("ka_bak");//
+                SwordQi.SwordQiWhole.LD_bak = AB.LoadAsset<GameObject>("LD_bak");//
 
 
 
-                SwordQi.jqi.AddComponent<Des>();
-                SwordQi.jqi.transform.GetChild(0).gameObject.AddComponent<Csm>();
+                SwordQi.SwordQiWhole.jqi.AddComponent<Des>();
+                SwordQi.SwordQiWhole.jqi.transform.GetChild(0).gameObject.AddComponent<Csm>();
 
-                SwordQi.jqi_4.AddComponent<Des>();
-                SwordQi.jqi_4.transform.GetChild(0).gameObject.AddComponent<Csm>();
-                SwordQi.jqi_4.transform.GetChild(1).gameObject.AddComponent<Csm>();
+                SwordQi.SwordQiWhole.jqi_4.AddComponent<Des>();
+                SwordQi.SwordQiWhole.jqi_4.transform.GetChild(0).gameObject.AddComponent<Csm>();
+                SwordQi.SwordQiWhole.jqi_4.transform.GetChild(1).gameObject.AddComponent<Csm>();
 
-                SwordQi.jqibash.AddComponent<SharkDes>();
-                SwordQi.jqibash.transform.GetChild(0).gameObject.AddComponent<JqiBashCsm>();
+                SwordQi.SwordQiWhole.jqibash.AddComponent<SharkDes>();
+                SwordQi.SwordQiWhole.jqibash.transform.GetChild(0).gameObject.AddComponent<JqiBashCsm>();
 
-                SwordQi.shark.AddComponent<SharkDes>();
-                SwordQi.shark.transform.GetChild(0).gameObject.AddComponent<SharkCsm>();
+                SwordQi.SwordQiWhole.shark.AddComponent<SharkDes>();
+                SwordQi.SwordQiWhole.shark.transform.GetChild(0).gameObject.AddComponent<SharkCsm>();
 
                 AB.Unload(false);
 

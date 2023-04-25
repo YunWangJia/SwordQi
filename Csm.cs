@@ -24,7 +24,7 @@ namespace SwordQi
                 {
 
                     int dam = UnityEngine.Random.Range(10, 21);
-                    int damWeap = dam + SwordQi.Yuan_KatDamage;
+                    int damWeap = dam + SwordQi.SwordQiWhole.Yuan_KatDamage;
                     EnHealth.Hit(damWeap);
                     
                 }
@@ -32,9 +32,9 @@ namespace SwordQi
             }
             if (other.gameObject.CompareTag("enemyCollide"))//是否与敌人碰撞
             {
-                
-                SwordQi.sharkEnergy += 2;
-                SwordQi.sharkEnergy = Mathf.Clamp(SwordQi.sharkEnergy, 0, 200);//限制数值大小
+
+                SwordQi.SwordQiWhole.sharkEnergy += 2;
+                SwordQi.SwordQiWhole.sharkEnergy = Mathf.Clamp(SwordQi.SwordQiWhole.sharkEnergy, 0, 200);//限制数值大小
                 //other.gameObject.SendMessageUpwards("Burn", SendMessageOptions.DontRequireReceiver);
 
             }

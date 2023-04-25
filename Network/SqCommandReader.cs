@@ -26,21 +26,21 @@ namespace SwordQi.Network
 								int fourth = r.ReadInt32();
 								Vector3 pos = new Vector3(r.ReadSingle(), r.ReadSingle(), r.ReadSingle());
 								Quaternion quat = new Quaternion(r.ReadSingle(), r.ReadSingle(), r.ReadSingle(), r.ReadSingle());
-								SwordQi.SyncJianQi(pos, quat, fourth);
+								SwordQi.SwordQiWhole.SyncJianQi(pos, quat, fourth);
 								break;
 
 							case 2:
 								int fourth_1 = r.ReadInt32();
 								Vector3 pos2 = new Vector3(r.ReadSingle(), r.ReadSingle(), r.ReadSingle());
 								Quaternion quat2 = new Quaternion(r.ReadSingle(), r.ReadSingle(), r.ReadSingle(), r.ReadSingle());
-								SwordQi.SyncShark(pos2, quat2);
+								SwordQi.SwordQiWhole.SyncShark(pos2, quat2);
 								break;
 
 							case 3:
 								int fourth_2 = r.ReadInt32();
 								Vector3 pos3 = new Vector3(r.ReadSingle(), r.ReadSingle(), r.ReadSingle());
 								Quaternion quat3 = new Quaternion(r.ReadSingle(), r.ReadSingle(), r.ReadSingle(), r.ReadSingle());
-								SwordQi.SyncJianQiBash(pos3, quat3);
+								SwordQi.SwordQiWhole.SyncJianQiBash(pos3, quat3);
 								break;
 
 

@@ -15,7 +15,7 @@ namespace SwordQi
 		void Start()
 		{
 			jq_4 = false;
-			switch (SwordQi.qics)
+			switch (SwordQi.SwordQiWhole.qics)
 			{
 				case 1:
 					transform.Rotate(new Vector3(0f, 0f, -45f));
@@ -31,7 +31,7 @@ namespace SwordQi
 
 				case 4:
 					jq_4 = true;
-					SwordQi.qics = 0;
+					SwordQi.SwordQiWhole.qics = 0;
 					break;
 
 				default:

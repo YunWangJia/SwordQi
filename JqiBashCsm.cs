@@ -32,7 +32,7 @@ namespace SwordQi
                 if (EnHealth)
                 {
                     int dam = UnityEngine.Random.Range(40, 61);
-                    int damWeap = dam + SwordQi.Yuan_KatDamage;
+                    int damWeap = dam + SwordQi.SwordQiWhole.Yuan_KatDamage;
                     EnHealth.Hit(damWeap);
 
                 }
@@ -43,8 +43,8 @@ namespace SwordQi
             //tree/树
             if (other.gameObject.CompareTag("enemyCollide"))//是否与敌人碰撞
             {
-                SwordQi.sharkEnergy += 4;
-                SwordQi.sharkEnergy = Mathf.Clamp(SwordQi.sharkEnergy, 0, 200);
+                SwordQi.SwordQiWhole.sharkEnergy += 4;
+                SwordQi.SwordQiWhole.sharkEnergy = Mathf.Clamp(SwordQi.SwordQiWhole.sharkEnergy, 0, 200);
                 other.gameObject.SendMessageUpwards("Burn", SendMessageOptions.DontRequireReceiver);
 
             }
@@ -58,8 +58,8 @@ namespace SwordQi
 
             if (other.CompareTag("BreakableWood") || other.CompareTag("BreakableRock") || other.CompareTag("animalCollide") || other.CompareTag("lb_bird"))//易碎木材/易碎岩石--影响野人路标,/动物检测/鸟
             {
-                SwordQi.sharkEnergy += 2;
-                SwordQi.sharkEnergy = Mathf.Clamp(SwordQi.sharkEnergy, 0, 200);
+                SwordQi.SwordQiWhole.sharkEnergy += 2;
+                SwordQi.SwordQiWhole.sharkEnergy = Mathf.Clamp(SwordQi.SwordQiWhole.sharkEnergy, 0, 200);
                 other.gameObject.SendMessage("Hit", 100, SendMessageOptions.DontRequireReceiver);
                 other.gameObject.SendMessage("LocalizedHit", new TheForest.World.LocalizedHitData(base.transform.position, 50f), SendMessageOptions.DontRequireReceiver);
                 //global::FMODCommon.PlayOneshotNetworked(this.weaponHitEvent, base.transform, global::FMODCommon.NetworkRole.Server);
@@ -67,8 +67,8 @@ namespace SwordQi
 
             if (other.CompareTag("SmallTree") || other.CompareTag("Tree") || other.CompareTag("Fish"))
             {
-                SwordQi.sharkEnergy += 2;
-                SwordQi.sharkEnergy = Mathf.Clamp(SwordQi.sharkEnergy, 0, 200);
+                SwordQi.SwordQiWhole.sharkEnergy += 2;
+                SwordQi.SwordQiWhole.sharkEnergy = Mathf.Clamp(SwordQi.SwordQiWhole.sharkEnergy, 0, 200);
                 float num4 = Vector3.Distance(base.transform.position, other.transform.position);
                 if (other.CompareTag("Fish"))
                 {
