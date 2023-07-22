@@ -14,8 +14,8 @@ namespace SwordQi
 
         private void Awake()
         {
-            if (dragTarget == null) dragTarget = transform.GetComponent<RectTransform>();//需移动的Bj图层
-            if (canvas == null) canvas = transform.parent.GetComponent<Canvas>();//画布
+            if (dragTarget == null) dragTarget = transform.parent.GetComponent<RectTransform>();//需移动的Bj图层
+            if (canvas == null) canvas = transform.parent.transform.parent.GetComponent<Canvas>();//画布
         }
 
         public void OnDrag(PointerEventData eventData)//OnDrag（打开拖动）

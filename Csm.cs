@@ -19,14 +19,14 @@ namespace SwordQi
             {
                 
                 EnemyHealth EnHealth = other.GetComponentInChildren<EnemyHealth>();//不明白为什么用变量声明的方式才能访问到
-                
                 if (EnHealth)
                 {
 
-                    int dam = UnityEngine.Random.Range(10, 21);
+                    int dam = UnityEngine.Random.Range(5, 11);
                     int damWeap = dam + SwordQi.SwordQiWhole.Yuan_KatDamage;
-                    EnHealth.Hit(damWeap);
-                    
+                    EnHealth.HitReal(damWeap);
+                    //Debug.Log("普通剑气伤害：" + damWeap.ToString());
+
                 }
 
             }

@@ -18,9 +18,10 @@ namespace SwordQi
                 
                 if (EnHealth)
                 {
-                    int dam = UnityEngine.Random.Range(70, 91);//取值不包括最大值，如果想取到100，则加1
+                    int dam = UnityEngine.Random.Range(60, 81);//取值不包括最大值，如果想取到100，则加1
                     int damWeap = dam + SwordQi.SwordQiWhole.Yuan_KatDamage;
-                    EnHealth.Hit(damWeap);
+                    EnHealth.HitReal(damWeap);
+                    //Debug.Log("技能伤害：" + damWeap.ToString());
                 }
 
             }

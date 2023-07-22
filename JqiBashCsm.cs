@@ -15,25 +15,15 @@ namespace SwordQi
             {
 
                 EnemyHealth EnHealth = other.GetComponentInChildren<EnemyHealth>();//不明白为什么用变量声明的方式才能访问到
-                //GameObject ka = SwordQi.yuan_KatanaHeld;
-
-                //int Default = 0;
-
-                //if (ka)//成功获取武器对象
-                //{
-                //    weaponInfo katinfo = ka.transform.GetChild(0).GetComponent<weaponInfo>();
-                //    if (katinfo)//成功获取武器信息
-                //    {
-                //        Default = (int)katinfo.WeaponDamage;
-                //    }
-
-                //}
-
+                //mutantHitReceiver hitRec = other.GetComponentInChildren<mutantHitReceiver>();
                 if (EnHealth)
                 {
-                    int dam = UnityEngine.Random.Range(40, 61);
+                    int dam = UnityEngine.Random.Range(30, 41);
                     int damWeap = dam + SwordQi.SwordQiWhole.Yuan_KatDamage;
-                    EnHealth.Hit(damWeap);
+                    EnHealth.HitReal(damWeap);
+                    //other.SendMessage("knockDownThisEnemy", SendMessageOptions.DontRequireReceiver);
+                    //Debug.Log("重击剑气伤害：" + damWeap.ToString());
+                    //EnHealth.HitReal(damWeap - 20);//hitFallDown里有20的伤害
 
                 }
 

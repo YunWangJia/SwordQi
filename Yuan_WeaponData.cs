@@ -65,6 +65,7 @@ namespace SwordQi
             /// 为真的时候，砍树没有伤害
             /// </summary>
             public bool noTreeCut;// 为真的时候，砍树没有伤害
+            public string Describe;
 
         }
 
@@ -73,6 +74,7 @@ namespace SwordQi
 
         public Yuan DeathScythe;
         public Yuan Xing_KatanaHeld;
+        public Yuan DaLangShouji;
 
         public IEnumerator YuanValueInit()
         {
@@ -120,6 +122,10 @@ namespace SwordQi
 
             DeathScythe.axe = false;
             DeathScythe.noTreeCut = true;
+
+            //大郎手机
+            DaLangShouji.weaponName = "大郎手机";
+            DaLangShouji.Describe = "会做炊饼，喝药贼快。\n大郎手机！";
 
             yield return null;
         }
