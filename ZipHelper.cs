@@ -5,6 +5,9 @@ using System.Linq;
 using System.Text;
 using Pathfinding.Ionic.Zip;
 using UnityEngine;
+using Bolt;
+using TheForest.Utils;
+using Steamworks;
 
 namespace SwordQi
 {
@@ -45,4 +48,43 @@ namespace SwordQi
 
 
     }
+
+    public class SQPlayerManager
+    {
+        public static List<SQPlayer> Players { get; } = new List<SQPlayer>();
+
+        public SQPlayerManager(SwordQi instance)
+        {
+        }
+
+        public SQPlayer GetPlayerBySteamId(ulong steamId)
+        {
+            return Players.FirstOrDefault(o => o.SteamId == steamId);
+        }
+    }
+
+    public class SQPlayer
+    {
+        private static readonly Dictionary<string, ulong> CachedIds = new Dictionary<string, ulong>();
+
+        public BoltEntity Entity { get; }
+        public ulong SteamId =>
+            CachedIds.ContainsKey(Name)
+                ? CachedIds[Name]
+                : (CachedIds[Name] = CoopLobby.Instance.AllMembers.FirstOrDefault(o => SteamFriends.GetFriendPersonaName(o) == Name).m_SteamID);
+
+        public string Name => Entity.GetState<IPlayerState>().name;
+        public BoltPlayerSetup PlayerSetup => Entity.GetComponent<BoltPlayerSetup>();
+        public CoopPlayerRemoteSetup CoopPlayer => Entity.GetComponent<CoopPlayerRemoteSetup>();
+
+        public Transform Transform => Entity.transform;
+        public Vector3 Position => Transform.position;
+        public NetworkId NetworkId => Entity.networkId;
+
+        public SQPlayer(BoltEntity player)
+        {
+            Entity = player;
+        }
+    }
+
 }

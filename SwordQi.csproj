@@ -22,8 +22,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <EmbeddedResource Include="jqi.unity3d"  />
-
+    
   </ItemGroup>
   <ItemGroup>
     <Reference Include="BaseModLib">
@@ -169,14 +168,12 @@
 <Compile Include="Des.cs"  />
 <Compile Include="DisplayWeaponUI.cs"  />
 <Compile Include="ItemBox.cs"  />
-<Compile Include="JqiBashCsm.cs"  />
+<Compile Include="ModTheWeapon.cs"  />
 <Compile Include="Network\SqCommandReader.cs"  />
 <Compile Include="Network\SqNetworkManager.cs"  />
 <Compile Include="Network\SqChatBoxMod.cs"  />
 <Compile Include="Override_Method.cs"  />
 <Compile Include="ResInspection.cs"  />
-<Compile Include="SharkCsm.cs"  />
-<Compile Include="SharkDes.cs"  />
 <Compile Include="SwordQi.cs"  />
 <Compile Include="UIFollowMouse.cs"  />
 <Compile Include="Yuan_WeaponData.cs"  />

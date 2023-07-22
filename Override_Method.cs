@@ -6,6 +6,7 @@ using TheForest.Buildings.Creation;
 using TheForest.Items.Inventory;
 using TheForest.UI;
 using TheForest.Utils;
+using UnityEngine;
 
 namespace SwordQi
 {
@@ -53,14 +54,19 @@ namespace SwordQi
                 {
                     case 180:
                         //LocalPlayer.Inventory.StashEquipedWeapon(false);
-                        SwordQi.SwordQiWhole.WeaponAlter(SwordQi.SwordQiWhole.yuan_KatanaHeld, "KatanaHeld", false);
+                        SwordQi.modTheWeapon.WeaponAlter(SwordQi.SwordQiWhole.yuan_KatanaHeld, "KatanaHeld", false);
 
                         break;
 
                     case 80:
                         //LocalPlayer.Inventory.StashEquipedWeapon(false);
-                        SwordQi.SwordQiWhole.WeaponAlter(SwordQi.SwordQiWhole.yuan_AxePlaneHeld, "AxePlaneHeld", false);
+                        SwordQi.modTheWeapon.WeaponAlter(SwordQi.SwordQiWhole.yuan_AxePlaneHeld, "AxePlaneHeld", false);
                         
+                        break;
+                    case 173:
+                        //LocalPlayer.Inventory.StashEquipedWeapon(false);
+                        SwordQi.modTheWeapon.WeaponAlter(SwordQi.SwordQiWhole.yuan_Compass, "Compass", false);
+
                         break;
 
                     default:
@@ -72,6 +78,62 @@ namespace SwordQi
         }
     }
 
+    /// <summary>
+    /// 客户的活敌人
+    /// </summary>
+    public class SQLiveEnemyForClients : MonoBehaviour
+    {
+        [ModAPI.Attributes.ExecuteOnGameStart]
+        public static void Init()
+        {
+            liveEnemies = new List<GameObject>();
+        }
+        internal static List<GameObject> liveEnemies;
+        void OnEnable()
+        {
+            if (!liveEnemies.Contains(gameObject))
+                liveEnemies.Add(gameObject);
+        }
+        void Start()
+        {
+            if (!liveEnemies.Contains(gameObject))
+                liveEnemies.Add(gameObject);
+        }
+        void OnDisable()
+        {
+            if (liveEnemies.Contains(gameObject))
+                liveEnemies.Remove(gameObject);
+        }
+        void OnDelete()
+        {
+            if (liveEnemies.Contains(gameObject))
+                liveEnemies.Remove(gameObject);
+        }
 
+    }
+    /// <summary>
+    /// 敌人武器近战扩展
+    /// </summary>
+    public class EnemyWeaponMeleeExtension : enemyWeaponMelee
+    {
+        protected override void Start()
+        {
+            if (transform.root.gameObject.GetComponent<SQLiveEnemyForClients>() == null)
+                transform.root.gameObject.AddComponent<SQLiveEnemyForClients>();
+            base.Start();
+        }
+    }
+    /// <summary>
+    /// 变异人工智能网络扩展
+    /// </summary>
+    public class MutantAINetworkExtension : mutantAI_net
+    {
+        protected override void Start()
+        {
+            if (transform.root.gameObject.GetComponent<SQLiveEnemyForClients>() == null)
+                transform.root.gameObject.AddComponent<SQLiveEnemyForClients>();
+            base.Start();
+        }
+    }
 
 }
