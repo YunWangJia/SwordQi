@@ -13,7 +13,7 @@ jqi.unity文件为项目内嵌资源，资源文件的Unity版本为5.6.5
 
 [Unity工程资源](https://pan.baidu.com/s/1yGMcGEWRQlCGmgIl-NmVuA?pwd=yuwj )
 
-## _注意事项_
+## __注意事项__
 
 - 1.5之后的版本UI界面使用了Unity制作，但在进入游戏后会出现UI贴图丢失的现象，原因不明！
 
@@ -23,11 +23,11 @@ jqi.unity文件为项目内嵌资源，资源文件的Unity版本为5.6.5
 
 - 原因有：
 
-  1.在不使用nityExplorer开发插件的情况下，我无法修复UI贴图丢失的问题。
+  1. 在不使用nityExplorer开发插件的情况下，我无法修复UI贴图丢失的问题。
 
-  2.Unity资源超过6MB后，ModAPI打包会频繁出错。
+  2. Unity资源超过6MB后，ModAPI打包会频繁出错。
 
-  3.随着mod的增大，游戏也更容易造成崩溃等。
+  3. 随着mod的增大，游戏也更容易造成崩溃等。
 
 ### 1.5.7.28更新内容
 
