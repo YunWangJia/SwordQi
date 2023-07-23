@@ -13,13 +13,13 @@ jqi.unity文件为项目内嵌资源，资源文件的Unity版本为5.6.5
 
 [Unity工程资源](https://pan.baidu.com/s/1yGMcGEWRQlCGmgIl-NmVuA?pwd=yuwj )
 
-## __注意事项__
+## <font color=Blue>__注意事项__</font>
 
 - 1.5之后的版本UI界面使用了Unity制作，但在进入游戏后会出现UI贴图丢失的现象，原因不明！
 
   但使用BepInEx框架下的UnityExplorer开发插件可以修复UI贴图丢失问题这问题。
 
-- $\color{#0000FF}{因为各种原因，本mod自1.5.7.28后将不在更新！}$
+- <font color=Blue>因为各种原因，本mod自1.5.7.28后将不在更新！</font>
 
 - 原因有：
 
