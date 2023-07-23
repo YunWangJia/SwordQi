@@ -19,7 +19,7 @@ jqi.unity文件为项目内嵌资源，资源文件的Unity版本为5.6.5
 
   但使用BepInEx框架下的UnityExplorer开发插件可以修复UI贴图丢失问题这问题。
 
-- $\color{Blue}因为各种原因，本mod自1.5.7.28后将不在更新！$
+- $\textcolor{Blue}{因为各种原因，本mod自1.5.7.28后将不在更新！}$
 
 + 原因有：
 
