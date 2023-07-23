@@ -11,6 +11,8 @@ ChampionsOfForest（森林冠军）这个mod
 
 jqi.unity文件为项目内嵌资源，资源文件的Unity版本为5.6.5
 
+[Unity工程资源](https://pan.baidu.com/s/1yGMcGEWRQlCGmgIl-NmVuA?pwd=yuwj )
+
 ## 注意事项
 
 - 1.5之后的版本UI界面使用了Unity制作，但在进入游戏后会出现UI贴图丢失的现象，原因不明！
