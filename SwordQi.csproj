@@ -164,7 +164,8 @@
 
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Csm.cs"  />
+    <Compile Include="AudioManagement.cs"  />
+<Compile Include="Csm.cs"  />
 <Compile Include="Des.cs"  />
 <Compile Include="DisplayWeaponUI.cs"  />
 <Compile Include="ItemBox.cs"  />
@@ -172,7 +173,9 @@
 <Compile Include="Network\SqCommandReader.cs"  />
 <Compile Include="Network\SqNetworkManager.cs"  />
 <Compile Include="Network\SqChatBoxMod.cs"  />
+<Compile Include="ObjectPool.cs"  />
 <Compile Include="Override_Method.cs"  />
+<Compile Include="PoolManager.cs"  />
 <Compile Include="ResInspection.cs"  />
 <Compile Include="SwordQi.cs"  />
 <Compile Include="UIFollowMouse.cs"  />

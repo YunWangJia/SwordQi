@@ -13,6 +13,11 @@ using TheForest.Items.Inventory;
 using System.Collections;
 using TheForest.UI;
 using System.Linq;
+using static Mono.Security.X509.X520;
+using static TheForest.Items.Item;
+using Bolt;
+using static SteamVR_PlayArea;
+using static UIPopupList;
 
 namespace SwordQi
 {
@@ -22,6 +27,7 @@ namespace SwordQi
         private static void AddMeToScene()
         {
             new GameObject("SwordQi").AddComponent<SwordQi>();
+            
         }
 
         public static SwordQi SwordQiWhole;//声明一个该类的静态变量，其他类就可以直接用这个变量访问到该类下的，公开方法和变量，而不需要把访问方法变为静态
@@ -29,6 +35,7 @@ namespace SwordQi
         public static ResInspection Resload;
         public static PlayerSfx playSfx;
         public static ModTheWeapon modTheWeapon;
+        public static ObjectPool ObjPool;
 
         public GameObject jqi;
         public GameObject jqibash;
@@ -60,6 +67,9 @@ namespace SwordQi
         public GameObject KatanaHeldParent;
         public GameObject KatanaHeld_1;
 
+        public GameObject SQPools = new GameObject("SwordQiPools");
+        public GameObject jqiPool = new GameObject("jqiPools");
+
         public GameObject Player_icon_ui;
 
         public Sprite Forest_map;
@@ -77,6 +87,13 @@ namespace SwordQi
         //public GameObject TitleScreenMenu;
         public GameObject hudGui;
 
+        public Queue<GameObject> PlayerJianQiPools = new Queue<GameObject>();
+        public Queue<GameObject> sarkJianQiPools = new Queue<GameObject>();
+
+        //public AudioClip sark_audio;
+
+
+
         //public VideoClip dalang;
 
         protected GUIStyle labelStyle;
@@ -93,6 +110,8 @@ namespace SwordQi
         public bool MenuBool;
         public bool ItemsBackpack;
         public bool CurrentMap;
+        public bool LoadCompleted;
+        bool InitialPool;
 
 
         public bool PackBool;
@@ -159,6 +178,9 @@ namespace SwordQi
             playSfx = new PlayerSfx();
             modTheWeapon = new ModTheWeapon();
 
+            SQPools.transform.parent = this.transform;
+            jqiPool.transform.parent = SQPools.transform;
+
             StartCoroutine(Resload.AssetCheck());
             StartCoroutine(ModWeapon.YuanValueInit());
 
@@ -194,7 +216,19 @@ namespace SwordQi
                     //Debug.Log("游戏还没开始!");
                     return;
                 }
-
+                //if (LoadCompleted && !InitialPool)
+                //{
+                    
+                //    SQPools.transform.parent = this.transform;
+                //    jqiPool.transform.parent = SQPools.transform;
+                //    Debug.Log("生成对象池！");
+                //    //PoolManager.Initialize(PlayerJianQiPools[0], SQPools.transform, jqi, 5);
+                //    //PoolManager.Initialize(PlayerJianQiPools[1], SQPools.transform, jqi_4, 2);
+                //    //PoolManager.Initialize(PlayerJianQiPools[2], SQPools.transform, jqibash, 2);
+                //    //PoolManager.Initialize(PlayerJianQiPools[3], SQPools.transform, shark, 2);
+                //    InitialPool = true;
+                //}
+                
                 if (!GetOriginalDataBool)//第一次生效
                 {
                     InvokeRepeating("GetYuan_KatDamage", 5f, 10f);//第一次time秒后调用，后面每repeatRate秒调用一次
@@ -333,7 +367,7 @@ namespace SwordQi
                     CloseBack();
                 }
 
-                if (!UnityEngine.Input.GetMouseButton(1) && !MenuBool && !PackBool)//如果处于架刀状态，或已打开菜单则退出
+                if (!UnityEngine.Input.GetMouseButton(1) && !MenuBool && !PackBool && TheForest.Utils.Input.GetState(TheForest.Utils.InputState.World))//如果处于架刀状态，或已打开菜单则退出，且在世界视图中
                 {
                     if (Camera.main.transform.localEulerAngles.x <= 43.33f || Camera.main.transform.localEulerAngles.x > 72.5f)
                     {
@@ -358,15 +392,14 @@ namespace SwordQi
                     }
                 }
 
-                if (ModAPI.Input.GetButtonDown("sharkjn") && sharkEnergy >= 100)// 鲨鱼
+                if (ModAPI.Input.GetButtonDown("sharkjn") && sharkEnergy >= 100 && TheForest.Utils.Input.GetState(TheForest.Utils.InputState.World) && !PackBool)// 鲨鱼,且在世界视图中
                 {
                     if(!GameSetup.IsSinglePlayer)
                     {
                         SendSwordQi(2, LocalPlayer.Transform.position + new Vector3(0f, 0.5f, 0f), Camera.main.transform.rotation);
                     }
-                    Instantiate(shark, LocalPlayer.Transform.position + new Vector3(0f, 0.5f, 0f), Camera.main.transform.rotation);
+                    SyncShark(LocalPlayer.Transform.position + new Vector3(0f, 0.5f, 0f), Camera.main.transform.rotation);
                     sharkEnergy -= 100;
-                    //Invoke("Shark", 10f);
                 }
                 if(UnityEngine.Input.GetKeyDown(KeyCode.UpArrow))//开手机灯
                 {
@@ -386,7 +419,22 @@ namespace SwordQi
                 {
                     sharkEnergy = 200;
                 }
-                
+                if (UnityEngine.Input.GetKeyDown(KeyCode.Keypad2))
+                {
+                    Debug.Log("Pool初始化！");
+                    Transform poolParent = new GameObject("Pool:" + jqi.name).transform;
+                    poolParent.parent = SQPools.transform;
+                    //pool.Initialize(poolParent);
+                    Queue<GameObject> queue = new Queue<GameObject>();
+                    Debug.Log("进入循环！");
+                    for (var i = 0; i < 5; i++)
+                    {
+                        var copy = GameObject.Instantiate(jqi, poolParent.transform);//实例化
+                        copy.SetActive(false);
+                        queue.Enqueue(copy);//入列函数
+                    }
+                    Debug.Log("入列成功！");
+                }
                 //if (UnityEngine.Input.GetKeyDown(KeyCode.O))
                 //{
 
@@ -530,7 +578,7 @@ namespace SwordQi
                 Keytime = 0f;
                 if (!GameSetup.IsSinglePlayer)
                 {
-                    SyncJianQiBash(LocalPlayer.Transform.position + new Vector3(0f, 1f, 0f), Camera.main.transform.rotation);
+                    SendSwordQi(3, LocalPlayer.Transform.position + new Vector3(0f, 1f, 0f), Camera.main.transform.rotation);
                 }
                 //SendSwordQi(3, LocalPlayer.Transform.position, Camera.main.transform.rotation);
                 SyncJianQiBash(LocalPlayer.Transform.position + new Vector3(0f, 1f, 0f), Camera.main.transform.rotation);
@@ -1022,12 +1070,14 @@ namespace SwordQi
             if(qics == 4)
             {
                 Instantiate(jqi_4, LocalPlayer.Transform.position + new Vector3(0f, 1f, 0f), Camera.main.transform.rotation);
+                
             }
             else
             {
                 Instantiate(jqi, LocalPlayer.Transform.position + new Vector3(0f, 1f, 0f), Camera.main.transform.rotation);
+                
             }
-            
+
             jqiBool = true;
         }
         public void SyncJianQi(Vector3 SwordQiPosition, Quaternion SwordQiRotation,int fourth)//剑气,同步的

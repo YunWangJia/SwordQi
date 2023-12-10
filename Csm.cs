@@ -11,6 +11,7 @@ namespace SwordQi
     {
 
         public bool csmJqi_4;
+        public int skill_int;
         private void OnTriggerEnter(Collider other)
         {
             //SwordQi.pzname = other.gameObject.name;
@@ -25,21 +26,26 @@ namespace SwordQi
                 {
                     int dam;
                     int damWeap;
-                    switch (this.gameObject.name)
+                    switch (skill_int)
                     {
-                        case "huang"://重击
+                        case 1:
+                            dam = UnityEngine.Random.Range(5, 11);
+                            damWeap = dam + SwordQi.SwordQiWhole.Yuan_KatDamage;
+                            break;
+
+                        case 2://重击
                             dam = UnityEngine.Random.Range(30, 41);
                             damWeap = dam + SwordQi.SwordQiWhole.Yuan_KatDamage;
                             break;
 
-                        case "shark"://鲨鱼技能
+                        case 3://鲨鱼技能
                             dam = UnityEngine.Random.Range(60, 81);//取值不包括最大值，如果想取到100，则加1
                             damWeap = dam + SwordQi.SwordQiWhole.Yuan_KatDamage;
                             break;
 
                         default:
-                            dam = UnityEngine.Random.Range(5, 11);
-                            damWeap = dam + SwordQi.SwordQiWhole.Yuan_KatDamage;
+                            
+                            damWeap = 0;
                             break;
                     }
 
@@ -51,21 +57,25 @@ namespace SwordQi
             if (other.gameObject.CompareTag("enemyCollide"))//是否与敌人碰撞
             {
                 //
-                switch (this.gameObject.name)
+                switch (skill_int)
                 {
-                    case "huang":
+                    case 1:
+                        SwordQi.SwordQiWhole.sharkEnergy += 2;
+                        //other.gameObject.SendMessageUpwards("Burn", SendMessageOptions.DontRequireReceiver);
+                        break;
+                    case 2:
                         SwordQi.SwordQiWhole.sharkEnergy += 4;
                         //other.gameObject.SendMessageUpwards("Burn", SendMessageOptions.DontRequireReceiver);
                         break;
 
-                    case "shark"://施加爆炸效果
+                    case 3://施加爆炸效果
                         float num4 = Vector3.Distance(base.transform.position, other.transform.position);
                         other.gameObject.SendMessageUpwards("Explosion", num4, SendMessageOptions.DontRequireReceiver);
                         other.gameObject.SendMessage("lookAtExplosion", base.transform.position, SendMessageOptions.DontRequireReceiver);
                         break;
 
                     default:
-                        SwordQi.SwordQiWhole.sharkEnergy += 2;
+                        //SwordQi.SwordQiWhole.sharkEnergy += 2;
                         break;
                 }
 
@@ -74,7 +84,7 @@ namespace SwordQi
 
             if (other.CompareTag("Tree"))
             {
-                if (csmJqi_4 || this.gameObject.name == "huang" || this.gameObject.name == "shark")//第四道剑气才能砍树和燃烧敌人
+                if (csmJqi_4 || skill_int == 2 || skill_int == 3)//第四道剑气才能砍树和燃烧敌人
                 {
                     if (!other.CompareTag("Player"))
                     {
@@ -105,16 +115,21 @@ namespace SwordQi
             {
                
 
-                switch (this.gameObject.name)
+                switch (skill_int)
                 {
-                    case "huang"://重击
+                    case 1://剑气
+                        other.gameObject.SendMessage("Hit", 50, SendMessageOptions.DontRequireReceiver);
+                        other.gameObject.SendMessage("LocalizedHit", new TheForest.World.LocalizedHitData(base.transform.position, 50f), SendMessageOptions.DontRequireReceiver);
+                        break;
+
+                    case 2://重击
                         SwordQi.SwordQiWhole.sharkEnergy += 2;
                         SwordQi.SwordQiWhole.sharkEnergy = Mathf.Clamp(SwordQi.SwordQiWhole.sharkEnergy, 0, 200);
                         other.gameObject.SendMessage("Hit", 100, SendMessageOptions.DontRequireReceiver);
                         other.gameObject.SendMessage("LocalizedHit", new TheForest.World.LocalizedHitData(base.transform.position, 50f), SendMessageOptions.DontRequireReceiver);
                         break;
 
-                    case "shark"://鲨鱼技能
+                    case 3://鲨鱼技能
                         other.gameObject.SendMessage("Hit", 100, SendMessageOptions.DontRequireReceiver);
                         other.gameObject.SendMessage("LocalizedHit", new TheForest.World.LocalizedHitData(base.transform.position, 50f), SendMessageOptions.DontRequireReceiver);
 
@@ -124,8 +139,8 @@ namespace SwordQi
                         break;
 
                     default:
-                        other.gameObject.SendMessage("Hit", 50, SendMessageOptions.DontRequireReceiver);
-                        other.gameObject.SendMessage("LocalizedHit", new TheForest.World.LocalizedHitData(base.transform.position, 50f), SendMessageOptions.DontRequireReceiver);
+                        //other.gameObject.SendMessage("Hit", 50, SendMessageOptions.DontRequireReceiver);
+                        //other.gameObject.SendMessage("LocalizedHit", new TheForest.World.LocalizedHitData(base.transform.position, 50f), SendMessageOptions.DontRequireReceiver);
                         break;
                 }
             }

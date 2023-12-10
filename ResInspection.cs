@@ -7,6 +7,8 @@ using UnityEngine;
 using System.Reflection;
 using System.Collections;
 using UnityEngine.Video;
+using System.Security.Cryptography;
+using static TheForest.Items.Item;
 
 namespace SwordQi
 {
@@ -145,7 +147,7 @@ namespace SwordQi
             {
                 Debug.Log("进入资源加载！");
                 AssetBundle AB = AssetBundle.LoadFromFile(jqiPath);
-                AssetBundle mapAB = AssetBundle.LoadFromFile(jqiModMapPath);
+                //AssetBundle mapAB = AssetBundle.LoadFromFile(jqiModMapPath);
                 //Debug.Log("读取Unnity3d成功！");
                 SwordQi.SwordQiWhole.jqi = AB.LoadAsset<GameObject>("jianqi");
                 SwordQi.SwordQiWhole.jqi_4 = AB.LoadAsset<GameObject>("jianqi_bash");//第4剑气
@@ -170,39 +172,60 @@ namespace SwordQi
                 SwordQi.SwordQiWhole.EnemyIcon_ui = AB.LoadAsset<GameObject>("Enemy_icon");//
                 SwordQi.SwordQiWhole.FellowPlayer_ui = AB.LoadAsset<GameObject>("FellowPlayer_icon");//
 
-                SwordQi.SwordQiWhole.SwordQi_Map = mapAB.LoadAsset<GameObject>("The_Map");//
+                //SwordQi.SwordQiWhole.SwordQi_Map = mapAB.LoadAsset<GameObject>("The_Map");//
 
-                //Debug.Log("全部资源加载成功！");
-                //SwordQi.SwordQiWhole.dalang = AB.LoadAsset<VideoClip>("DaLang");//开机视频
-                AB.Unload(false);
-                mapAB.Unload(false);
+                //========================
 
                 SwordQi.SwordQiWhole.jqi.AddComponent<Des>();
                 SwordQi.SwordQiWhole.jqi.GetComponent<Des>().RotateSpeed = 50f;
                 SwordQi.SwordQiWhole.jqi.GetComponent<Des>().DestroyTime = 3f;
+                SwordQi.SwordQiWhole.jqi.GetComponent<Des>().skill_int = 1;
                 SwordQi.SwordQiWhole.jqi.transform.GetChild(0).gameObject.AddComponent<Csm>();
+                SwordQi.SwordQiWhole.jqi.transform.GetChild(0).gameObject.GetComponent<Csm>().skill_int = 1;
 
                 SwordQi.SwordQiWhole.jqi_4.AddComponent<Des>(); 
                 SwordQi.SwordQiWhole.jqi_4.GetComponent<Des>().RotateSpeed = 50f;
                 SwordQi.SwordQiWhole.jqi_4.GetComponent<Des>().DestroyTime = 3f;
+                SwordQi.SwordQiWhole.jqi_4.GetComponent<Des>().skill_int = 1;
                 SwordQi.SwordQiWhole.jqi_4.transform.GetChild(0).gameObject.AddComponent<Csm>();
+                SwordQi.SwordQiWhole.jqi_4.transform.GetChild(0).gameObject.GetComponent<Csm>().skill_int = 1;
                 SwordQi.SwordQiWhole.jqi_4.transform.GetChild(1).gameObject.AddComponent<Csm>();
+                SwordQi.SwordQiWhole.jqi_4.transform.GetChild(1).gameObject.GetComponent<Csm>().skill_int = 1;
 
+                //重击
                 SwordQi.SwordQiWhole.jqibash.AddComponent<Des>();
                 SwordQi.SwordQiWhole.jqibash.GetComponent<Des>().RotateSpeed = 50f;
                 SwordQi.SwordQiWhole.jqibash.GetComponent<Des>().DestroyTime = 3f;
+                SwordQi.SwordQiWhole.jqibash.GetComponent<Des>().skill_int = 2;
                 SwordQi.SwordQiWhole.jqibash.transform.GetChild(0).gameObject.AddComponent<Csm>();
+                SwordQi.SwordQiWhole.jqibash.transform.GetChild(0).gameObject.GetComponent<Csm>().skill_int = 2;
 
+                //鲨鱼
                 SwordQi.SwordQiWhole.shark.AddComponent<Des>();
+                AudioManagement.SetAudioClip(SwordQi.SwordQiWhole.shark, AB.LoadAsset<AudioClip>("sark_audio"));
                 SwordQi.SwordQiWhole.shark.GetComponent<Des>().shark_obj = true;
                 SwordQi.SwordQiWhole.shark.GetComponent<Des>().DestroyTime = 2.5f;
+                SwordQi.SwordQiWhole.shark.GetComponent<Des>().skill_int = 3;
                 SwordQi.SwordQiWhole.shark.transform.GetChild(0).gameObject.AddComponent<Csm>();
+                SwordQi.SwordQiWhole.shark.transform.GetChild(0).gameObject.GetComponent<Csm>().skill_int = 3;
                 //Debug.Log("添加类成功！");
 
                 SwordQi.SwordQiWhole.WeaponUI.transform.GetChild(0).gameObject.AddComponent<UIFollowMouse>();//背包内武器信息UI
                 SwordQi.SwordQiWhole.Menu.transform.Find("BJ/ke").gameObject.AddComponent<ItemBox>();//给界面添加可拖动代码，代码挂在了BJ/ke上。也就是画布里需要拖动的对象。
-                //我去，打包资源的时候不小心把菜单界面删了，还没发现，导致这里一直报错！
+                                                                                                     //我去，打包资源的时候不小心把菜单界面删了，还没发现，导致这里一直报错！
+
                 
+                //Debug.Log("全部资源加载成功！");
+                //SwordQi.SwordQiWhole.dalang = AB.LoadAsset<VideoClip>("DaLang");//开机视频
+                AB.Unload(false);
+                //mapAB.Unload(false);
+
+                //SwordQi.SwordQiWhole.jqiPool.AddComponent<ObjectPool>();
+                //SwordQi.SwordQiWhole.jqiPool.GetComponent<ObjectPool>().Initialize(5, SwordQi.SwordQiWhole.jqi, SwordQi.SwordQiWhole.jqiPool.transform);
+
+                SwordQi.SwordQiWhole.LoadCompleted = true;
+
+                //Pool.Initialize(SwordQi.SwordQiWhole.SQPools.transform, SwordQi.SwordQiWhole.jqi, 5);
             }
             catch (Exception e)
             {
