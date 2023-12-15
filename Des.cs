@@ -11,12 +11,13 @@ namespace SwordQi
 		public float RotateSpeed;
 		public float DestroyTime;
         public bool shark_obj;
+        public int skill_int;
         //public static bool jq_4;
         // Use this for initialization
         void Start()
 		{
             
-            if (this.gameObject.name == "jianqi(Clone)" || this.gameObject.name == "jianqi_bash(Clone)")
+            if (skill_int == 1)
             {
                 
                 switch (SwordQi.SwordQiWhole.qics)
@@ -41,7 +42,12 @@ namespace SwordQi
 
                 }
             }
+            if(skill_int == 3)
+            {
+                this.gameObject.GetComponent<AudioSource>().Play();
+            }
 
+            //Invoke("TimedDisable", DestroyTime);
             Destroy(this.gameObject, DestroyTime);
 		}
 
@@ -56,6 +62,11 @@ namespace SwordQi
 
         }
 
+        //void TimedDisable()
+        //{
+            
+        //    this.transform.parent.GetComponent<ObjectPool>().ReturnObject(this.gameObject);
+        //}
 
-	}
+    }
 }
